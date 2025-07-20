@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: catadata-app
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: catadata-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: catadata
+      MYSQL_USER: catadata
+      MYSQL_PASSWORD: secret
+    ports:
+      - "33306:3306"
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: catadata-mailhog
+    ports:
+      - "8025:8025"
+
