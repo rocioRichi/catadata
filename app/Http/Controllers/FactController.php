@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fact;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -17,13 +18,17 @@ class FactController extends Controller
                 throw new Exception('La API devolvió un error.');
             }
 
-            $fact = $response->json()['fact'] ?? 'No se pudo leer el dato de la API.';
-            return view('fact', ['fact' => $fact]);
+            $factText = $response->json()['fact'] ?? 'Sin contenido';
+
+            // Guardar el dato en la base de datos
+            $fact = Fact::create(['content' => $factText]);
+
+            return view('fact', ['fact' => $fact->content]);
         } catch (Exception $e) {
             Log::error('Error al obtener dato de gato: ' . $e->getMessage());
 
             return response()->view('fact-error', [
-                'message' => 'Ups... parece que el gatito se está bañando. Inténtalo de nuevo más tarde 🛁🐱',
+                'message' => 'Ups... parece que el gatito se ha escondido. Inténtalo de nuevo más tarde 🐾',
                 'error' => $e->getMessage()
             ], 503);
         }
