@@ -20,17 +20,26 @@ class FactController extends Controller
 
             $factText = $response->json()['fact'] ?? 'Sin contenido';
 
-            // Guardar el dato en la base de datos
-            $fact = Fact::create(['content' => $factText]);
+            // Verificar si ya existe
+            $existing = Fact::where('content', $factText)->first();
 
-            return view('fact', ['fact' => $fact->content]);
+            if (!$existing) {
+                Fact::create(['content' => $factText]);
+            }
+
+            return view('fact', ['fact' => $factText]);
         } catch (Exception $e) {
             Log::error('Error al obtener dato de gato: ' . $e->getMessage());
 
             return response()->view('fact-error', [
-                'message' => 'Ups... parece que el gatito se ha escondido. Inténtalo de nuevo más tarde 🐾',
+                'message' => 'Ups... parece que el gatito se ha enredado en la red. Inténtalo más tarde 🐾',
                 'error' => $e->getMessage()
             ], 503);
         }
+    }
+    public function index()
+    {
+        $facts = \App\Models\Fact::latest()->get(); // muestra los más recientes arriba
+        return view('facts', ['facts' => $facts]);
     }
 }
